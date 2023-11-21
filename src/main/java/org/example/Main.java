@@ -21,10 +21,8 @@ public class Main {
         Scanner sc = new Scanner(System.in);
 
 
-        JsonObject continent = JsonObject.readFrom(String.valueOf(world.get("continent")));
 
-
-        System.out.println(count_of_keys(continent, sc.nextLine()));
+        System.out.println(count_of_keys(world, sc.nextLine()));
 
 
 

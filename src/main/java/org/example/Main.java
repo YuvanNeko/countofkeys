@@ -1,325 +1,61 @@
 package org.example;
 
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class Main {
-    static AtomicInteger PopulationOfAll = new AtomicInteger();
-
-    static int population;
-    static AtomicInteger PopulationOfContinent = new AtomicInteger();
+    static int countOfKeysVar;
     public static void main(String[] args) throws IOException {
+
         String JsonString = Files.readString(Path.of("src/main/java/org/example/world.json"));
 
         JsonObject world = JsonObject.readFrom(JsonString);
 
-//        System.out.println(world.names());
+
+        Scanner sc = new Scanner(System.in);
+
 
         JsonObject continent = JsonObject.readFrom(String.valueOf(world.get("continent")));
 
-//        population_of_world(continent);
 
-//        population_of_continent(continent, "Asia");
-//
-//        population_of_country(continent, "India");
-//
-//        population_of_state(continent, "Tamil Nadu");
-//
-//        population_of_city( continent, "Chennai");
+        System.out.println(count_of_keys(continent, sc.nextLine()));
 
-//        recursivePopulationCalculation(continent);
-
-        System.out.println("Population of the world : "+populationofworld(continent));
-
-//        population_of_world(continent);
-
-//        System.out.println("Population of the continent : "+populationofcontinent(continent, "Asia"));
-
-//        population_of_continent(continent, "Asia");
-
-
-
-
-        continent.forEach((continentName)-> {
-            try {
-                System.out.println("Population of the continent " + continentName.getName() + " " + populationofworld(continent));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            JsonObject continents = JsonObject.readFrom(String.valueOf(continent.get(continentName.getName())));
-            continents.forEach((cntrys)->{
-                JsonObject country = JsonObject.readFrom(String.valueOf(continents.get(cntrys.getName())));
-                country.forEach((countryName)->{
-//                    population_of_country(continent, countryName.getName());
-                    try {
-                        System.out.println("Population of the country " + countryName.getName() + " " + populationofworld(continent));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    JsonObject country1 = JsonObject.readFrom(String.valueOf(countryName.getValue()));
-                    country1.forEach((stat)->{
-                        JsonObject state = JsonObject.readFrom(String.valueOf(country1.get(stat.getName())));
-                        state.forEach((stateName) -> {
-//                            population_of_state(continent ,stateName.getName());
-                            JsonObject states = JsonObject.readFrom(String.valueOf(state.get(stateName.getName())));
-                            states.forEach((cty) -> {
-                                JsonObject city = JsonObject.readFrom(String.valueOf(states.get("cities")));
-                                city.forEach((city_name)->{
-//                                    population_of_city(continent ,city_name.getName());
-                                });
-                            });
-
-
-                        });
-                    });
-
-
-                });
-            });
-
-        });
 
 
     }
 
-    static int populationofworld(JsonObject continent) throws IOException {
+    static int count_of_keys(JsonObject continent, String keyName) throws IOException {
         if(!continent.isEmpty()){
             continent.forEach((continenetName)-> {
                         if (!continent.get(continenetName.getName()).isNumber()) {
                             JsonObject rec = JsonObject.readFrom(String.valueOf(continent.get(continenetName.getName())));
+//                            System.out.println(continenetName.getName());
+                            if(keyName.equals(continenetName.getName())){
+                                countOfKeysVar += 1;
+                            }
                             try {
-                                populationofworld(rec);
+                                count_of_keys(rec, keyName);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
                         }
                         else {
-                            continent.forEach((pop)->{
-                                population += pop.getValue().asInt();
-                            });
+                            if(keyName.equals(continenetName.getName())){
+                                countOfKeysVar += 1;
+                            }
                         }
 
                     }
             );
 
         }
-        return population;
+        return countOfKeysVar;
 
     }
-
-//    static AtomicInteger populationofcontinent(JsonObject continent, String continentName) throws IOException {
-//        if(continent.isNull()){
-//            continent.forEach((continenetName)-> {
-//                        if (!continent.get(continenetName.getName()).isNumber()) {
-//                            JsonObject rec = JsonObject.readFrom(String.valueOf(continent.get(continenetName.getName())));
-//                            try {
-//                                populationofworld(rec);
-//                            } catch (IOException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                        }
-//                        else {
-//                            continent.forEach((pop)->{
-//                                System.out.println(continent.names());
-//                                PopulationOfContinent.addAndGet(pop.getValue().asInt());
-//                            });
-//                        }
-//
-//                    }
-//            );
-//        }
-//
-//        return PopulationOfContinent;
-//
-//    }
-
-    static void population_of_world(JsonObject continent){
-
-        AtomicInteger PopulationOfAll = new AtomicInteger();
-
-        continent.forEach((continentName)-> {
-            JsonObject continents = JsonObject.readFrom(String.valueOf(continent.get(continentName.getName())));
-            continents.forEach((cnt)->{
-                JsonObject country = JsonObject.readFrom(String.valueOf(continents.get(cnt.getName())));
-                country.forEach((countryName)->{
-                    JsonObject country1 = JsonObject.readFrom(String.valueOf(countryName.getValue()));
-                    country1.forEach((stat) -> {
-                        JsonObject state = JsonObject.readFrom(String.valueOf(country1.get(stat.getName())));
-                        state.forEach((stateName) -> {
-                            JsonObject states = JsonObject.readFrom(String.valueOf(state.get(stateName.getName())));
-                            states.forEach((cty)->{
-                                JsonObject city = JsonObject.readFrom(String.valueOf(states.get(cty.getName())));
-                                city.forEach((city_name)->{
-                                    JsonObject cityName = JsonObject.readFrom(String.valueOf(city.get(city_name.getName())));
-                                    cityName.forEach((pop)->{
-                                            PopulationOfAll.addAndGet(pop.getValue().asInt());
-                                    });
-                                });
-                            });
-                        });
-                    });
-
-                });
-            });
-
-        });
-
-
-        System.out.println( "Population of the entire world : "  + PopulationOfAll);
-
-    }
-
-    static void population_of_continent(JsonObject continent, String ContinentName){
-
-        AtomicInteger PopulationOfContinent = new AtomicInteger();
-
-        if (continent.get(ContinentName) != null) {
-
-            JsonObject country = JsonObject.readFrom(String.valueOf(continent.get(ContinentName)));
-            country.forEach((cntry)->{
-                JsonObject countries = JsonObject.readFrom(String.valueOf(country.get(cntry.getName())));
-                countries.forEach((countryName) -> {
-                    JsonObject country1 = JsonObject.readFrom(String.valueOf(countries.get(countryName.getName())));
-                    country1.forEach((stat)->{
-                        JsonObject state = JsonObject.readFrom(String.valueOf(country1.get(stat.getName())));
-                        state.forEach((stateName) -> {
-                            JsonObject states = JsonObject.readFrom(String.valueOf(state.get(stateName.getName())));
-                            states.forEach((cty)->{
-                                    JsonObject city = JsonObject.readFrom(String.valueOf(states.get(cty.getName())));
-                            city.forEach((cityName) -> {
-                                JsonObject cities = JsonObject.readFrom(String.valueOf(city.get(cityName.getName())));
-                                cities.forEach((pop) ->{
-                                    PopulationOfContinent.addAndGet(pop.getValue().asInt());
-                                });
-
-                            });
-                            });
-
-                        });
-                    });
-
-                });
-            });
-
-
-            System.out.println("Population of the continent " + ContinentName + " : " + PopulationOfContinent);
-
-        }
-
-
-    }
-
-    static void population_of_country(JsonObject continent, String CountryName){
-
-        AtomicInteger PopulationOfCountry = new AtomicInteger();
-
-        continent.forEach((ContinentName) -> {
-            JsonObject countries = JsonObject.readFrom(String.valueOf(continent.get(ContinentName.getName())));
-            countries.forEach((cntry)->{
-                JsonObject country = JsonObject.readFrom(String.valueOf(countries.get(cntry.getName())));
-                if(country.get(CountryName) != null){JsonObject country1 = JsonObject.readFrom(String.valueOf(country.get(CountryName)));
-                    country1.forEach((stat)->{
-                        JsonObject state = JsonObject.readFrom(String.valueOf(country1.get(stat.getName())));
-                        state.forEach((stateName)-> {
-                            JsonObject states = JsonObject.readFrom(String.valueOf(state.get(stateName.getName())));
-                            states.forEach((cty)->{
-                                JsonObject city = JsonObject.readFrom(String.valueOf(states.get(cty.getName())));
-                                city.forEach((cityName)-> {
-                                    JsonObject cities = JsonObject.readFrom(String.valueOf(city.get(cityName.getName())));
-                                    cities.forEach((pop) ->{
-                                        PopulationOfCountry.addAndGet(pop.getValue().asInt());
-                                    });
-                                });
-                            });
-
-                        });
-                    });
-
-                }
-            });
-
-        });
-
-        System.out.println("Population of the country " + CountryName + " : " + PopulationOfCountry);
-
-    }
-
-    static void population_of_state(JsonObject continent, String StateName){
-
-        AtomicInteger PopulationOfState = new AtomicInteger();
-
-        continent.forEach((ContinentName)-> {
-            JsonObject continents = JsonObject.readFrom(String.valueOf(continent.get(ContinentName.getName())));
-            continents.forEach((cntry)->{
-                JsonObject country = JsonObject.readFrom(String.valueOf(continents.get(cntry.getName())));
-                country.forEach((countryName)->{
-                    JsonObject country1 = JsonObject.readFrom(String.valueOf(countryName.getValue()));
-                    country1.forEach((stat)->{
-                        JsonObject state = JsonObject.readFrom(String.valueOf(country1.get(stat.getName())));
-                        if(state.get(StateName) != null) {
-                            JsonObject states = JsonObject.readFrom(String.valueOf(state.get(StateName)));
-                            states.forEach((cty)->{
-                                JsonObject city = JsonObject.readFrom(String.valueOf(states.get(cty.getName())));
-                                city.forEach((cityName)-> {
-                                    JsonObject cities = JsonObject.readFrom(String.valueOf(city.get(cityName.getName())));
-                                    cities.forEach((pop) ->{
-                                        PopulationOfState.addAndGet(pop.getValue().asInt());
-                                    });
-
-                                });
-                            });
-
-                        }
-                    });
-
-
-                });
-            });
-
-        });
-
-        System.out.println( "Population of state " + StateName +  " : "  + PopulationOfState);
-
-    }
-
-    static void population_of_city(JsonObject continent, String CityName){
-
-        AtomicInteger PopulationOfCity = new AtomicInteger();
-
-        continent.forEach((continentName)-> {
-            JsonObject continents = JsonObject.readFrom(String.valueOf(continent.get(continentName.getName())));
-            continents.forEach((cntry)->{
-                JsonObject country = JsonObject.readFrom(String.valueOf(continents.get(cntry.getName())));
-                country.forEach((countryName)->{
-                    JsonObject country1 = JsonObject.readFrom(String.valueOf(countryName.getValue()));
-                    country1.forEach((stat)->{
-                        JsonObject state = JsonObject.readFrom(String.valueOf(country1.get(stat.getName())));
-                        state.forEach((stateName) -> {
-                            JsonObject states = JsonObject.readFrom(String.valueOf(state.get(stateName.getName())));
-                            states.forEach((cty)->{
-                                JsonObject city = JsonObject.readFrom(String.valueOf(states.get(cty.getName())));
-                                if(city.get(CityName) != null){
-                                    JsonObject population = JsonObject.readFrom(String.valueOf(city.get(CityName)));
-                                    population.forEach((pop)->{
-                                        PopulationOfCity.addAndGet(pop.getValue().asInt());
-                                    });
-                                }
-                            });
-                        });
-                    });
-
-                });
-            });
-
-        });
-
-
-        System.out.println( "Population of city " + CityName + " : "  + PopulationOfCity);
-
-    }
-
 }
